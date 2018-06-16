@@ -1,4 +1,3 @@
-// var _ = require('lodash');
 const ramda = require('ramda')
 
 var add = function(x) {
@@ -34,7 +33,7 @@ var myAdd = ramda.curry(function(x, y, z) {
 
 
 function chapter04() {
-    console.log("chapter04")
+    console.log("--- Chapter 04 ---");
 
     var increment = add(1);
     var addTen = add(10);
@@ -48,6 +47,7 @@ function chapter04() {
     console.log(myAdd(10)(20)(30));
 }
 
+/////////////////////////////////////////////////////////////////////
 
 function exercise1() {
     // Use map to make a new words fn that works on an array of strings.
@@ -107,11 +107,13 @@ function exercise3() {
 
 
 function exercises() {
+    console.log('--- Exercises 04 ---');
     exercise1();
     exercise2();
     exercise3();
 }
 
-//chapter04();
+/////////////////////////////////////////////////////////////////////
 
+chapter04();
 exercises();
