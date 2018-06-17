@@ -64,6 +64,15 @@ class Maybe {
 // func_map :: Functor f => (a -> b) -> f a -> f b
 const func_map = R.curry( (f, anyFunctor) => anyFunctor.map( f ));
 
+// maybe :: b -> (a -> b) -> Maybe a -> b
+const maybe = R.curry( (value, f, m) => {
+    if (m.isNothing) {
+        return value;
+    }
+
+    return f( m.$value );
+});
+
 function schroedingers_maybe() {
     const m1 = Maybe.of("Malkovich").map(R.match(/a/ig));
     console.log(m1); // Just (a)
@@ -119,6 +128,11 @@ function use_cases() {
     console.log(getTwenty( { balance: 200.00 })); // Just (Your balance is $180)
     console.log(getTwenty( { balance: 10 } )); // Nothing
     console.log(getTwenty( { invalid_key: 'foo' } )); // Nothing
+
+    const getTwenty_v2 = R.compose( maybe('You are broke!', finishTransaction ), withdraw(20) );
+
+    console.log(getTwenty_v2( { balance: 30 })); // Your balance is $10
+    console.log(getTwenty_v2( { balance: 10 })); // You are broke!
 }
 
 
