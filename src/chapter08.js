@@ -222,15 +222,49 @@ function pure_error_handling() {
     console.log( R.compose(func_map(fortune), getAge(moment())) ({birthDate: 'none'}) );
 }
 
+class IO {
+    static of(x) {
+        return new IO( () => x );
+    }
+
+    constructor (fn) {
+        this.$value = fn;
+    }
+
+    map (fn) {
+        return new IO(R.compose(fn, this.$value));
+    }
+
+    inspect () {
+        return `IO (${this.$value})`;
+    }
+
+    perform() {
+        this.$value();
+    }
+}
+
+function old_mcdonald_had_effects() {
+    const myLogger = new IO( () => console.log('logging') );
+    console.log(myLogger);
+
+    const logger2 = myLogger.map( () => console.log('more logging'))
+    logger2.perform();
+
+    const ioWindow = new IO( () => { innerWidth: 100 } );
+    const width = ioWindow.map( win => win.innerWidth );
+}
+
 
 function chapter08() {
     console.log("--- Chapter 08 ---");
 
-    // the_mighty_container();
-    // my_first_functor();
-    // schroedingers_maybe();
-    // use_cases();
+    the_mighty_container();
+    my_first_functor();
+    schroedingers_maybe();
+    use_cases();
     pure_error_handling();
+    old_mcdonald_had_effects();
 }
 
 /////////////////////////////////////////////////////////////////
