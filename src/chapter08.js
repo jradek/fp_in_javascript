@@ -1,4 +1,5 @@
 const R = require('ramda')
+const moment = require('moment')
 
 class Container {
     constructor (x) {
@@ -136,13 +137,100 @@ function use_cases() {
 }
 
 
+class Either {
+    static of (x) {
+        return new Right(x);
+    }
+
+    constructor (x) {
+        this.$value = x;
+    }
+}
+
+class Left extends Either {
+    map (f) { return this; }
+
+    inspect () { return `Left (${this.$value})`; }
+}
+
+// left :: a -> Either a b
+const left = a => new Left(a);
+
+class Right extends Either {
+    map (f) { return Either.of( f(this.$value) ); }
+
+    inspect () { return `Right (${this.$value})`; }
+}
+
+// either :: (a -> c) -> (b -> c) -> Either a b -> c
+const either = R.curry( (f, g, e) => {
+    let result;
+    switch (e.constructor) {
+        case Left:
+            result = f(e.$value);
+            break;
+        case Right:
+            result = g(e.$value);
+            break;
+    }
+
+    return result;
+});
+
+function either_tests() {
+    const e1 = Either.of('rain').map( str => `b${str}`);
+    console.log(e1); // Right (brain)
+
+    const e2 = left( 'rain').map( str => `huhu ${str}`);
+    console.log(e2); // Left (rain)
+
+    const e3 = Either.of( {host: 'localhost', port: 80 }).map( R.prop('host'));
+    console.log(e3); // Right (localhost)
+
+    const e4 = left('rolls eyes ...').map( R.prop('host'));
+    console.log(e4); // Left (rolls eyes ...)
+
+    const e5 = either(R.id, x => x * 2, Either.of(10));
+    console.log(e5); // Right (20)
+
+    const e6 = either(R.identity, x => x * 2, left('oops'));
+    console.log(e6); // Left (oops)
+}
+
+function pure_error_handling() {
+    either_tests();
+
+    const getAge = R.curry( (now, user) => {
+        const birthDate = moment(user.birthDate, 'YYYY-MM-DD');
+        return  birthDate.isValid()
+            ? Either.of( now.diff(birthDate, 'years'))
+            : left('Birth date could not be parsed');
+    });
+
+    console.log( getAge( moment(), { birthDate: '2005-12-12'}) ); // Right (12)
+
+    console.log( getAge( moment(), { birthDate: 'July 4, 2001'}) ); // Left (Birth date could not be parsed)
+
+    // fortune :: Number -> String
+    const fortune = R.compose( R.concat('if you survive, you will be '), R.toString, R.add(1));
+
+    const zoltar = R.compose(func_map(console.log), func_map(fortune), getAge(moment()));
+
+    zoltar( {birthDate: '2005-12-12'} ); // if you survive, you will be 13
+    zoltar( {birthDate: 'none'} ); // Left (Birth date could not be parsed)
+
+    console.log( R.compose(func_map(fortune), getAge(moment())) ({birthDate: 'none'}) );
+}
+
+
 function chapter08() {
     console.log("--- Chapter 08 ---");
 
-    the_mighty_container();
-    my_first_functor();
-    schroedingers_maybe();
-    use_cases();
+    // the_mighty_container();
+    // my_first_functor();
+    // schroedingers_maybe();
+    // use_cases();
+    pure_error_handling();
 }
 
 /////////////////////////////////////////////////////////////////

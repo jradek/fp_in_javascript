@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.10",
+    "moment": "^2.22.2",
     "ramda": "^0.25.0"
   }
 }
